@@ -132,7 +132,7 @@
 
 		const layers = params.get('map') == 'cycle'
 			? [L.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=eb266ba189b54e0c9d05caf4da05cc3f', { attribution: '&copy <a href="https://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; TfL', maxNativeZoom: 18, maxZoom: 20 })]
-			: [L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZG9tZG9tZWdnIiwiYSI6ImNrZHU5MDZtMDAzc2cyem9zamt0OTkxaGQifQ.-Pw2LGrPdmgw9cI0s5KUOg', { attribution: '&copy <a href="https://www.mapbox.com/feedback/">Mapbox</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; TfL', maxZoom: 20, tileSize: 512, zoomOffset: -1 })];
+			: [L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZG9tZG9tZWdnIiwiYSI6ImNrZHczOHc2ZTN2NXIydHJvcHMyM281dW8ifQ.Ldlfe2OlYMohTnG2TK2v7Q', { attribution: '&copy <a href="https://www.mapbox.com/feedback/">Mapbox</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; TfL', maxZoom: 20, tileSize: 512, zoomOffset: -1 })];
 
 		const map = L.map('map', { center: L.latLng(51.5072, -0.1275), zoom: 18, layers });
 		L.control.locate({
