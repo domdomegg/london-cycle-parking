@@ -1,0 +1,10 @@
+{
+  "name": "london-cycle-parking-map-load",
+  "scripts": {
+    "load": "node load.js"
+  },
+  "author": "Adam Jones (domdomegg)",
+  "dependencies": {
+    "axios": "^0.19.2"
+  }
+}

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>London cycle parking</title>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" crossorigin="" />
+	<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+	<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" crossorigin=""></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.72.0/dist/L.Control.Locate.min.css" />
+	<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.72.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+	<script src="data/features.js"></script>
+	<style>
+		body {
+			padding: 0;
+			margin: 0;
+		}
+
+		html,
+		body,
+		#map {
+			height: 100%;
+			width: 100%;
+		}
+
+		#progress {
+			display: none;
+			position: absolute;
+			z-index: 1000;
+			left: 400px;
+			top: 300px;
+			width: 200px;
+			height: 20px;
+			margin-top: -20px;
+			margin-left: -100px;
+			background-color: #fff;
+			background-color: rgba(255, 255, 255, 0.7);
+			border-radius: 4px;
+			padding: 2px;
+		}
+
+		#progress-bar {
+			width: 0;
+			height: 100%;
+			background-color: #76A6FC;
+			border-radius: 4px;
+		}
+
+		.marker-cluster-small {
+			background-color: rgba(181, 226, 140, 0.6);
+		}
+
+		.marker-cluster-small div {
+			background-color: rgba(110, 204, 57, 0.6);
+		}
+
+		.marker-cluster-medium {
+			background-color: rgba(241, 211, 87, 0.6);
+		}
+
+		.marker-cluster-medium div {
+			background-color: rgba(240, 194, 12, 0.6);
+		}
+
+		.marker-cluster-large {
+			background-color: rgba(253, 156, 115, 0.6);
+		}
+
+		.marker-cluster-large div {
+			background-color: rgba(241, 128, 23, 0.6);
+		}
+
+		.marker-cluster {
+			background-clip: padding-box;
+			border-radius: 20px;
+		}
+
+		.marker-cluster div {
+			width: 30px;
+			height: 30px;
+			margin-left: 5px;
+			margin-top: 5px;
+
+			text-align: center;
+			border-radius: 15px;
+			font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+		}
+
+		.marker-cluster span {
+			line-height: 30px;
+		}
+
+		.leaflet-popup-content-wrapper {
+			border-radius: 5px;
+		}
+		.leaflet-popup-content {
+			margin: 15px 15px 11px 15px;
+		}
+		.leaflet-popup-close-button {
+			display: none;
+		}
+
+		.fa{display:inline-block;}
+		.fa-map-marker:before { content:"📍" }
+		.fa-spinner {
+			border: 5px solid #ddd;
+			border-top: 5px solid #00ade6;
+			border-radius: 50%;
+			width: 11px;
+			height: 11px;
+			animation: spin 1.5s linear infinite;
+		}
+		@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(359deg)}}
+		.leaflet-control-locate .leaflet-bar-part, .leaflet-control-locate .leaflet-bar-part:hover {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="map"></div>
+	<script type="text/javascript">
+		const params = new URLSearchParams(window.location.search);
+
+		const showPrivate = params.has('private');
+
+		const layers = params.get('map') == 'cycle'
+			? [L.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=eb266ba189b54e0c9d05caf4da05cc3f', { attribution: '&copy <a href="https://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; TfL', maxNativeZoom: 18, maxZoom: 20 })]
+			: [L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZG9tZG9tZWdnIiwiYSI6ImNrZHU5MDZtMDAzc2cyem9zamt0OTkxaGQifQ.-Pw2LGrPdmgw9cI0s5KUOg', { attribution: '&copy <a href="https://www.mapbox.com/feedback/">Mapbox</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; TfL', maxZoom: 20, tileSize: 512, zoomOffset: -1 })];
+
+		const map = L.map('map', { center: L.latLng(51.5072, -0.1275), zoom: 18, layers });
+		L.control.locate({
+			keepCurrentZoomLevel: true,
+			strings: {
+				title: "Find your location"
+			},
+			locateOptions: {
+				enableHighAccuracy: true
+			}
+		}).addTo(map).start();
+
+		const getDetails = (title) => (layer) => {
+			const el = document.createElement('div');
+			const popup = layer.getPopup()
+			
+			fetch('data/features/' + title + '.json').then(res => res.json()).then((data) => {
+				const a1 = document.createElement('a');
+				a1.href = data.PHOTO1_URL;
+				a1.target = '_blank';
+				const img1 = document.createElement('img');
+				img1.onload = () => popup.update();
+            	img1.src = data.PHOTO1_URL;
+				img1.width = 300;
+            	a1.appendChild(img1);
+            	el.appendChild(a1);
+				
+				const a2 = document.createElement('a');
+				a2.href = data.PHOTO2_URL;
+				a2.target = '_blank';
+				const img2 = document.createElement('img');
+				img2.onload = () => popup.update();
+            	img2.src = data.PHOTO2_URL;
+				img2.width = 300;
+            	a2.appendChild(img2);
+				el.appendChild(a2);
+				
+				const private = (data.PRK_SECURE || data.PRK_LOCKER || data.PRK_HANGAR);
+				const covered = (data.PRK_COVER || data.PRK_LOCKER || data.PRK_HANGAR);
+
+				const div = document.createElement('div');
+				div.style.display = 'flex';
+				div.style.justifyContent = 'space-between';
+				div.innerHTML = 
+					'<span style="flex: 1">🚲 ' + data.PRK_CPT + '</span>'
+					+ (showPrivate ? '<span style="flex: 1">' + (private ? '❌' : '✅') + ' Public</span>' : '')
+					+ '<span>' + (covered ? '✅' : '❌') + ' Covered</span>';
+				el.appendChild(div)
+				
+				popup.setContent(el);
+				popup.update();
+			})
+			
+			return el;
+		}
+		
+		const addMarkers = (parkingData) => {
+			const markerList = [];
+			for (let i = 0; i < parkingData.length; i++) {
+				const marker = L.marker(L.latLng(parkingData[i][0], parkingData[i][1]), { title: parkingData[i][2] });
+				marker.bindPopup(getDetails(parkingData[i][2]));
+				markerList.push(marker);
+			}
+			map.addLayer(L.markerClusterGroup({ maxClusterRadius: (zoomLevel) => zoomLevel > 16 ? 30 : 60 }).addLayers(markerList));
+		}
+
+		if (!showPrivate) {
+			addMarkers(F);
+		} else {
+			fetch('data/incprivate.json').then(res => res.json()).then(addMarkers);
+		}
+	</script>
+</body>
+
+</html>
