@@ -4,4 +4,4 @@
 
 Plots TfL's open data on cycle parking on a map
 
-This repository is hosted as a GitHub pages site so contains the loaded too
+This repository is hosted as a GitHub pages site so contains the loaded `data` folder too
