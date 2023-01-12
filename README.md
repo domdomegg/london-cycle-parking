@@ -1,4 +1,4 @@
-# 🚲 London Cycle Parking Map [(view live)](https://domdomegg.github.io/london-cycle-parking/)
+# 🚲 London Cycle Parking Map [(view live)](https://adamjones.me/london-cycle-parking/)
 
 ![Screenshot of the London cycle parking map](screenshot.png)
 
